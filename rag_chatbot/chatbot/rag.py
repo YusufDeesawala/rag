@@ -3,8 +3,11 @@ import faiss
 import numpy as np
 import json
 import os
+import dotenv
 
-API_KEY = "AIzaSyBSfR0qp7A_-qkwsXYqAXihBU2x7ZFR9BI"  # put your Gemini key here
+dotenv.load_dotenv()
+
+API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=API_KEY)
 
 EMBEDDING_MODEL = "models/embedding-001"
