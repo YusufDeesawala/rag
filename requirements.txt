@@ -3,3 +3,4 @@ djangorestframework
 google-generativeai 
 faiss-cpu 
 numpy
+ 
