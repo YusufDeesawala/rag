@@ -5,3 +5,4 @@ faiss-cpu
 numpy
 nltk
 scikit-learn
+gunicorn
