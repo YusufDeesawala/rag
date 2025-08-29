@@ -3,3 +3,5 @@ djangorestframework
 google-generativeai 
 faiss-cpu 
 numpy
+nltk
+scikit-learn
