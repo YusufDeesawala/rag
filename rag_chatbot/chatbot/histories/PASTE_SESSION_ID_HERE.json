@@ -1,0 +1,12 @@
+[
+  {
+    "ts": 1756443803,
+    "role": "user",
+    "message": "cool, how do I install it?"
+  },
+  {
+    "ts": 1756443803,
+    "role": "bot",
+    "message": "Hmm, I’m not fully sure yet. Could you rephrase or add more detail?"
+  }
+]
