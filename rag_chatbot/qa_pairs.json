@@ -1,0 +1,10 @@
+[
+    {
+        "input": "What is RAG?",
+        "response": "Retrieval-Augmented Generation improves LLMs using external knowledge."
+    },
+    {
+        "input": "who is yusuf?",
+        "response": "the best coder ever alive."
+    }
+]

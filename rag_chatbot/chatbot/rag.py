@@ -4,7 +4,7 @@ import numpy as np
 import json
 import os
 
-API_KEY = "your_api_key_here"  # put your Gemini key here
+API_KEY = "AIzaSyBSfR0qp7A_-qkwsXYqAXihBU2x7ZFR9BI"  # put your Gemini key here
 genai.configure(api_key=API_KEY)
 
 EMBEDDING_MODEL = "models/embedding-001"
