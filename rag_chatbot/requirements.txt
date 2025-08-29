@@ -1,0 +1,6 @@
+django 
+djangorestframework 
+google-generativeai 
+faiss-cpu 
+numpy
+python-dotenv
