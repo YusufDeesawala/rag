@@ -1,76 +1,47 @@
-import google.generativeai as genai
-import faiss
-import numpy as np
+import re
 import json
 import os
 
-API_KEY = "AIzaSyBSfR0qp7A_-qkwsXYqAXihBU2x7ZFR9BI"  # put your Gemini key here
-genai.configure(api_key=API_KEY)
-
-EMBEDDING_MODEL = "models/embedding-001"
-GENERATION_MODEL = "gemini-2.5-flash"
-
-INDEX_FILE = "qa_index.faiss"
 DATA_FILE = "qa_pairs.json"
 
+# -----------------------
+# Utility functions
+# -----------------------
+def extract_keywords(text):
+    stopwords = {"is", "a", "the", "and", "what", "how", "do", "i", "of", "to", "in"}
+    words = re.findall(r"\w+", text.lower())
+    return [w for w in words if w not in stopwords]
 
-def get_embedding(text):
-    result = genai.embed_content(
-        model=EMBEDDING_MODEL,
-        content=text,
-        task_type="retrieval_query"
-    )
-    return np.array(result['embedding']).astype('float32')
+def load_db():
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, "r") as f:
+            return json.load(f)
+    return []
 
-
-def load_or_init_db():
-    if os.path.exists(DATA_FILE) and os.path.exists(INDEX_FILE):
-        with open(DATA_FILE, 'r') as f:
-            qa_pairs = json.load(f)
-        index = faiss.read_index(INDEX_FILE)
-    else:
-        qa_pairs = []
-        d = 768
-        index = faiss.IndexFlatL2(d)
-    return qa_pairs, index
-
-
-def save_db(qa_pairs, index):
-    with open(DATA_FILE, 'w') as f:
+def save_db(qa_pairs):
+    with open(DATA_FILE, "w") as f:
         json.dump(qa_pairs, f)
-    faiss.write_index(index, INDEX_FILE)
 
-
-def add_pair(input_text, response_text):
-    qa_pairs, index = load_or_init_db()
-    embedding = get_embedding(input_text)
-    qa_pairs.append({"input": input_text, "response": response_text})
-    index.add(np.array([embedding]))
-    save_db(qa_pairs, index)
-
+# -----------------------
+# Core keyword logic
+# -----------------------
+def add_pair(question, answer):
+    qa_pairs = load_db()
+    qa_pairs.append({"question": question, "answer": answer})
+    save_db(qa_pairs)
 
 def generate_response(query):
-    qa_pairs, index = load_or_init_db()
-    query_embedding = get_embedding(query)
+    qa_pairs = load_db()
+    query_keywords = set(extract_keywords(query))
 
-    if index.ntotal == 0:
-        model = genai.GenerativeModel(GENERATION_MODEL)
-        response = model.generate_content(query)
-        return response.text
+    best_score = 0
+    best_answer = "Sorry, I don't know the answer."
 
-    D, I = index.search(np.array([query_embedding]), 3)
-    context = ""
-    for idx in I[0]:
-        if 0 <= idx < len(qa_pairs):
-            pair = qa_pairs[idx]
-            context += f"Q: {pair['input']}\nA: {pair['response']}\n\n"
+    for pair in qa_pairs:
+        q_keywords = set(extract_keywords(pair["question"]))
+        score = len(query_keywords & q_keywords)  # keyword overlap
+        if score > best_score:
+            best_score = score
+            best_answer = pair["answer"]
 
-    prompt = f"""
-    Based on the following similar Q&A pairs, answer the user.
-    Context:
-    {context}
-    User Query: {query}
-    """
-    model = genai.GenerativeModel(GENERATION_MODEL)
-    response = model.generate_content(prompt)
-    return response.text
+    return best_answer
