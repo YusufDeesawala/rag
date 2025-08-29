@@ -1,3 +1,5 @@
-langchain
-faiss-cpu
-langchain-google-genai
+django 
+djangorestframework 
+google-generativeai 
+faiss-cpu 
+numpy
